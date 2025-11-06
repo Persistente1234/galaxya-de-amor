@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Singularity Romántico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono:wght@400;700&family=Georgia:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #100518 0%, #020104 70%);
+            color: #00ffcc;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 105, 180, 0.9);
+            font-family: 'Georgia', serif;
+            font-size: 22px;
+            font-style: italic;
+            letter-spacing: 1px;
+            pointer-events: none;
+            z-index: 100;
+            text-shadow: 0 0 8px rgba(255, 105, 180, 0.7), 0 0 12px rgba(255, 105, 180, 0.5), 2px 2px 4px rgba(0,0,0,0.8);
+            transition: opacity 2s ease-in-out 1s;
+            background: linear-gradient(135deg, rgba(255, 20, 147, 0.3), rgba(138, 43, 226, 0.3));
+            padding: 20px 40px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 182, 193, 0.4);
+            backdrop-filter: blur(10px);
+            margin: 0 20px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        #info {
+            animation: float 3s ease-in-out infinite;
+        }
+        @media (max-width: 640px) {
+            #info { font-size: 18px; top: 15px; padding: 15px 30px; }
+        }
+        /* Estilos para la carga */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #100518 0%, #020104 70%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            transition: opacity 0.5s ease-out;
+        }
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        #status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ffcc;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 150;
+            font-family: 'Share Tech Mono', monospace;
+            border: 1px solid #00ffcc;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <br>
+        <span style="font-size: 14px; opacity: 0.8; font-family: 'Share Tech Mono', monospace;">Puedes hacer zoom en la pantalla para ver la magia</span>
+    </div>
+    <div id="status">Verificando...</div>
+    <div id="loading">
+        <div style="color: #ff00ff; font-size: 24px; margin-bottom: 20px;">Cargando Galaxia de Amor...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+    </div>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A1-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+    
+     
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-NEWa1B2c3D4E5f6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0UvWxYzZ.js"></script>
+
+
+
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+   
+   
+   
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+   
+   
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+   
+   
+   
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+  
+  
+  
+  
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+  
+  
+    <script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A2-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2A3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B3-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2B4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C4-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2C5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+<script type="module" src="confiHitgup/js/4f8a9d7c-21b3-4f6a-88a9-c7d6f5e4a3b2-9fA7b6C5d4E3f2D5-1a2b3c4d5e6f7g8h9i0jK1L2M3N4O5P6Q7R8S9T0UvWxYzZ1A2B3C4D5E6F7G8H9I0J.js"></script>
+  
+  
+  <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+      import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDo7xxzDMRJMEOEyhmZiH5Q2lOAgmZYmtk",
+        authDomain: "galaxia-de-amor-cb375.firebaseapp.com",
+        databaseURL: "https://galaxia-de-amor-cb375-default-rtdb.firebaseio.com",
+        projectId: "galaxia-de-amor-cb375",
+        storageBucket: "galaxia-de-amor-cb375.firebasestorage.app",
+        messagingSenderId: "873666572167",
+        appId: "1:873666572167:web:0047a0d273d2757cb8ad22",
+        measurementId: "G-WPWG15Y4D6"
+      };
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const database = getDatabase(app);
+
+      // Elementos DOM
+      const loading = document.getElementById('loading');
+      const progress = document.getElementById('progress');
+      const status = document.getElementById('status');
+
+      // Obtener ID de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      // Simular progreso de carga
+      let progressValue = 0;
+      const progressInterval = setInterval(() => {
+        progressValue += Math.random() * 10;
+        if (progressValue > 80) progressValue = 80;
+        progress.style.width = progressValue + '%';
+      }, 100);
+
+      // Verificar y cargar datos
+      async function loadData() {
+        let hasData = false;
+        window.customImages = [];
+        if (id) {
+          try {
+            const snapshot = await get(ref(database, `images/${id}`));
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              if (Array.isArray(data)) {
+                const textureLoader = new THREE.TextureLoader();
+                const loadPromises = data.slice(0, 5).map(url => {
+                  return new Promise((resolve) => {
+                    textureLoader.load(url, resolve, undefined, () => resolve(null));
+                  });
+                });
+                const loadedTextures = await Promise.all(loadPromises);
+                window.customImages = loadedTextures.filter(tex => tex !== null);
+                hasData = window.customImages.length > 0;
+              }
+            }
+          } catch (error) {
+            console.error('Error loading data:', error);
+          }
+        }
+
+        clearInterval(progressInterval);
+        // Completar progreso
+        const finalInterval = setInterval(() => {
+          progressValue += 5;
+          progress.style.width = progressValue + '%';
+          if (progressValue >= 100) {
+            clearInterval(finalInterval);
+            loading.classList.add('hidden');
+            setTimeout(() => {
+              loading.style.display = 'none';
+            }, 500);
+
+            if (hasData) {
+              status.textContent = 'Datos cargados 💖';
+              status.style.color = '#00ff00';
+              window.createImages();
+            } else {
+              status.textContent = 'VIC 💙 PERSI';
+              status.style.color = '#ff00ff';
+            }
+          }
+        }, 50);
+      }
+
+      loadData();
+    </script>
+</body>
+</html>
