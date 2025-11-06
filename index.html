@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candado Romántico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background: url('img/fondo.jpg') no-repeat center center fixed; background-size: cover; box-shadow: inset 0 0 100px rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; } #canvas { cursor: pointer; display: block; background: transparent; } #keyImage { position: absolute; cursor: move; user-select: none; opacity: 0; transition: opacity 1s ease-in-out; touch-action: none; } #nextBtn { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(145deg, #ff6b9d, #ffb3c6); color: white; border: none; padding: 12px 28px; font-size: 18px; font-family: 'Dancing Script', cursive; border-radius: 50px; cursor: pointer; opacity: 0; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3); z-index: 10; } #nextBtn:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 12px 24px rgba(255, 107, 157, 0.4); } #nextBtn:active { transform: translateX(-50%) translateY(0); } @media (max-width: 768px) { #nextBtn { bottom: 60px; padding: 10px 24px; font-size: 16px; } #keyImage { width: 40px; height: 40px; } }
+        #musicPrompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            color: white;
+            font-family: 'Dancing Script', cursive;
+            font-size: 24px;
+        }
+        #musicPrompt button {
+            margin: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ff6b9d, #ffb3c6);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        #musicControls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 20;
+            display: none;
+        }
+        #musicControls button {
+            margin-right: 10px;
+            padding: 8px 16px;
+            background: linear-gradient(145deg, #ff6b9d, #ffb3c6);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+        }
+        #galaxiPanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: none;
+            z-index: 100;
+        }
+        #galaxiFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+        }
+        #exitFullscreenBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+            display: none;
+            padding: 8px 16px;
+            background: linear-gradient(145deg, #ff6b9d, #ffb3c6);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="musicPrompt">
+        <p>Desea reproducir la música?</p>
+        <button id="playYes">Sí</button>
+        <button id="playNo">No</button>
+    </div>
+    <audio id="backgroundMusic" loop src="mus/1.mp3"></audio>
+    <div id="musicControls">
+        <button id="muteBtn">Mute</button>
+        <button id="pauseBtn">Pausa</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <img id="keyImage" src="img/1.png" style="width: 50px; height: 50px;">
+    <button id="nextBtn">Siguiente</button>
+    <div id="galaxiPanel">
+        <iframe id="galaxiFrame" src="galaxi.html"></iframe>
+    </div>
+    <button id="exitFullscreenBtn">Salir Pantalla Completa</button>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const keyImage = document.getElementById('keyImage');
+        const nextBtn = document.getElementById('nextBtn');
+        const musicPrompt = document.getElementById('musicPrompt');
+        const playYes = document.getElementById('playYes');
+        const playNo = document.getElementById('playNo');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicControls = document.getElementById('musicControls');
+        const muteBtn = document.getElementById('muteBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const galaxiPanel = document.getElementById('galaxiPanel');
+        const galaxiFrame = document.getElementById('galaxiFrame');
+        const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let lockState = 'closed';
+        let introState = 'firstText';
+        let animationProgress = 0;
+        let shackleFallY = 0;
+        let shackleFallVelocity = 0;
+        let shackleRotation = 0;
+        let lockShakeX = 0;
+        let particles = [];
+        let heartPulse = 0;
+        let fadeProgress = 0;
+        let fadeDirection = 1;
+        let fadeSpeed = 0.03;
+        let fadeToBlack = false;
+        let fadeToBlackProgress = 0;
+        let fadeToBlackSpeed = 0.005;
+        let waitTimer = null;
+        let lockCenterX = canvas.width / 2;
+        let lockCenterY = canvas.height / 2 - 80;
+        let lastMovementTime = 0;
+        let hintOpacity = 0;
+        let hintTimer = null;
+
+        setTimeout(() => {
+            nextBtn.style.opacity = 1;
+        }, 1000);
+
+        nextBtn.addEventListener('click', () => {
+            if (introState === 'firstText') {
+                introState = 'secondText';
+                keyImage.style.opacity = 1;
+                fadeProgress = 0;
+                fadeDirection = 1;
+            } else if (introState === 'secondText') {
+                introState = 'fading';
+                fadeDirection = -1;
+                nextBtn.style.opacity = 0;
+            }
+        });
+
+        let isDragging = false;
+        let keyX = canvas.width / 2 - 25;
+        let keyY = canvas.height / 2 + 200;
+
+        keyImage.style.left = `${keyX}px`;
+        keyImage.style.top = `${keyY}px`;
+
+        function startDrag(e) {
+            if (introState === 'done') {
+                isDragging = true;
+                lastMovementTime = Date.now();
+                if (hintTimer) clearTimeout(hintTimer);
+                hintOpacity = 0;
+                e.preventDefault();
+            }
+        }
+
+        function moveDrag(e) {
+            if (isDragging && introState === 'done') {
+                e.preventDefault();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                keyX = clientX - 25;
+                keyY = clientY - 25;
+                keyImage.style.left = `${keyX}px`;
+                keyImage.style.top = `${keyY}px`;
+                lastMovementTime = Date.now();
+
+                const dist = Math.sqrt(
+                    Math.pow(keyX + 25 - lockCenterX, 2) +
+                    Math.pow(keyY + 25 - lockCenterY, 2)
+                );
+                if (dist < 50 && lockState === 'closed') {
+                    openLock();
+                }
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        keyImage.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('mouseup', endDrag);
+
+        keyImage.addEventListener('touchstart', startDrag);
+        document.addEventListener('touchmove', moveDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 10;
+                this.vy = (Math.random() - 0.5) * 10 - 3;
+                this.life = 1;
+                this.size = Math.random() * 5 + 3;
+                this.color = `hsl(${Math.random() * 60 + 320}, 100%, ${50 + Math.random() * 30}%)`;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.4;
+                this.life -= 0.015;
+                this.rotation += this.rotationSpeed;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                const s = this.size;
+                ctx.moveTo(0, s/4);
+                ctx.bezierCurveTo(-s/2, -s/2, -s, -s/4, 0, s/2);
+                ctx.bezierCurveTo(s, -s/4, s/2, -s/2, 0, s/4);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        function createParticles(x, y, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function drawHeartShape(scale, yOffset) {
+            ctx.beginPath();
+            
+            const x = 0;
+            const y = yOffset;
+            const power = 2.9;
+            
+            for (let t = 0; t <= Math.PI * 2; t += 0.01) {
+                const st = Math.sin(t);
+                const abs_st = Math.abs(st);
+                const signed_pow = (st >= 0) ? Math.pow(abs_st, power) : -Math.pow(abs_st, power);
+                const heartX = x + scale * 16 * signed_pow;
+                const heartY = y - scale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                
+                if (t === 0) {
+                    ctx.moveTo(heartX, heartY);
+                } else {
+                    ctx.lineTo(heartX, heartY);
+                }
+            }
+            
+            ctx.closePath();
+        }
+
+        function drawRoundedRect(x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function drawIntroTexts() {
+            ctx.save();
+            ctx.globalAlpha = fadeProgress;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const isMobile = canvas.width < 768;
+            const fontSize1 = isMobile ? 24 : 38;
+            const fontSize2 = isMobile ? 20 : 28;
+            
+            const firstText = "Quiere que veas esto";
+            const firstText2 = "En mi corazón, veras la magia";
+            const firstText3 = "dentro de mí";
+            const secondText = "Toma esta llave y podrás ver";
+
+            const boxPadding = isMobile ? 20 : 40;
+            const boxWidth = Math.min(canvas.width - boxPadding * 2, isMobile ? 350 : 700);
+            let boxX = canvas.width / 2 - boxWidth / 2;
+            let boxHeight = 0;
+            let boxY = 0;
+
+            if (introState === 'firstText') {
+                boxY = canvas.height / 2 + (isMobile ? 70 : 100);
+                boxHeight = isMobile ? 180 : 200;
+            } else if (introState === 'secondText' || introState === 'fading') {
+                boxY = canvas.height / 2 + (isMobile ? 50 : 80);
+                boxHeight = isMobile ? 80 : 100;
+            }
+
+            const radius = 20;
+            drawRoundedRect(boxX, boxY, boxWidth, boxHeight, radius);
+            
+            const grad = ctx.createLinearGradient(boxX, boxY, boxX, boxY + boxHeight);
+            grad.addColorStop(0, 'rgba(255, 107, 157, 0.25)');
+            grad.addColorStop(1, 'rgba(255, 182, 193, 0.15)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            const lineHeight = isMobile ? 40 : 60;
+            
+            if (introState === 'firstText') {
+                const startY = canvas.height / 2 + (isMobile ? 80 : 110);
+                ctx.font = `bold ${fontSize1}px "Dancing Script", cursive`;
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = '#ff6b9d';
+                ctx.shadowBlur = 15;
+                
+                ctx.fillText(firstText, canvas.width / 2, startY);
+                ctx.fillText(firstText2, canvas.width / 2, startY + lineHeight);
+                ctx.fillText(firstText3, canvas.width / 2, startY + lineHeight * 2);
+                ctx.shadowBlur = 0;
+            } else if (introState === 'secondText' || introState === 'fading') {
+                const startY = canvas.height / 2 + (isMobile ? 60 : 90);
+                ctx.font = `bold ${fontSize2}px "Dancing Script", cursive`;
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = '#ff6b9d';
+                ctx.shadowBlur = 15;
+                
+                ctx.fillText(secondText, canvas.width / 2, startY + lineHeight / 2);
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.restore();
+        }
+
+        function drawHint() {
+            if (introState !== 'done' || Date.now() - lastMovementTime < 3000) return;
+
+            ctx.save();
+            ctx.globalAlpha = Math.min(hintOpacity, 1);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+
+            const isMobile = canvas.width < 768;
+            const fontSize = isMobile ? 18 : 22;
+            const hintText = "Lleva la imagen al centro del candado para abrirlo";
+            
+            ctx.font = `bold ${fontSize}px "Dancing Script", cursive`;
+            const textWidth = ctx.measureText(hintText).width;
+            const padding = 20;
+            const boxWidth = textWidth + padding * 2;
+            const boxHeight = fontSize + padding * 2;
+            const boxX = canvas.width - boxWidth - 20;
+            const boxY = canvas.height - boxHeight - 20;
+
+            // Dibujar caja redondeada
+            drawRoundedRect(boxX, boxY, boxWidth, boxHeight, 15);
+            
+            const hintGrad = ctx.createLinearGradient(boxX, boxY, boxX + boxWidth, boxY + boxHeight);
+            hintGrad.addColorStop(0, 'rgba(255, 107, 157, 0.2)');
+            hintGrad.addColorStop(1, 'rgba(255, 182, 193, 0.1)');
+            ctx.fillStyle = hintGrad;
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Texto
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = '#ff6b9d';
+            ctx.shadowBlur = 10;
+            ctx.fillText(hintText, boxX + padding, boxY + boxHeight - padding / 2);
+            ctx.shadowBlur = 0;
+
+            ctx.restore();
+        }
+
+        function drawBlackBackground() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawLock() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            //drawBlackBackground(); // Removed to show body background
+            
+            if (!fadeToBlack) {
+                heartPulse += 0.05;
+                particles = particles.filter(p => p.life > 0);
+                particles.forEach(p => {
+                    p.update();
+                });
+            }
+            
+            particles.forEach(p => {
+                p.draw();
+            });
+            
+            ctx.save();
+            ctx.translate(canvas.width / 2 + lockShakeX, canvas.height / 2 - 80);
+            const bodyScale = 6;
+            ctx.save();
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetY = 15;
+            drawHeartShape(bodyScale, 5);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            
+            const darkGrad = ctx.createLinearGradient(0, -80, 0, 80);
+            darkGrad.addColorStop(0, '#a83a56');
+            darkGrad.addColorStop(1, '#8b2e44');
+            ctx.fillStyle = darkGrad;
+            drawHeartShape(bodyScale, 3);
+            ctx.fill();
+            
+            const gradient = ctx.createRadialGradient(-20, -40, 0, 0, 0, 150);
+            gradient.addColorStop(0, '#ffb3c6');
+            gradient.addColorStop(0.3, '#ff8fab');
+            gradient.addColorStop(0.6, '#ff6b9d');
+            gradient.addColorStop(1, '#c44569');
+            ctx.fillStyle = gradient;
+            ctx.shadowColor = 'rgba(255, 107, 157, 0.6)';
+            ctx.shadowBlur = 25;
+            
+            drawHeartShape(bodyScale, 0);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 5;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#fff';
+            drawHeartShape(bodyScale, 0);
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.beginPath();
+            ctx.ellipse(-35, -45, 25, 35, -0.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(30, -40, 18, 25, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.arc(-25, -50, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.save();
+            drawHeartShape(bodyScale, 0);
+            ctx.clip();
+            
+            const shadowGrad1 = ctx.createRadialGradient(0, 60, 0, 0, 60, 90);
+            shadowGrad1.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            shadowGrad1.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            ctx.fillStyle = shadowGrad1;
+            ctx.fillRect(-100, 0, 200, 100);
+            
+            const shadowGrad2 = ctx.createRadialGradient(50, 0, 0, 50, 0, 80);
+            shadowGrad2.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            shadowGrad2.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
+            ctx.fillStyle = shadowGrad2;
+            ctx.fillRect(0, -100, 100, 200);
+            
+            ctx.restore();
+            if (lockState === 'closed' && introState === 'done') {
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#ff6b9d';
+                ctx.lineWidth = 3;
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+                ctx.shadowBlur = 15;
+                
+                const keyScale = 1.5 + Math.sin(heartPulse) * 0.15;
+                drawHeartShape(keyScale, 0);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(255, 182, 193, 0.7)';
+                drawHeartShape(keyScale * 0.4, -8);
+                ctx.fill();
+            }
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2 + heartPulse;
+                const radius = 130;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.scale(0.5, 0.5);
+                drawHeartShape(0.8, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+            ctx.restore();
+            if ((lockState === 'closed' || introState !== 'done') && lockState !== 'opening') {
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 20;
+                ctx.lineCap = 'round';
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(0, -65, 65, Math.PI + 0.15, -0.15, false);
+                ctx.stroke();
+                const arcGrad = ctx.createLinearGradient(-65, -130, 65, -130);
+                arcGrad.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+                arcGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.7)');
+                arcGrad.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
+                ctx.strokeStyle = arcGrad;
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.arc(0, -65, 65, Math.PI + 0.3, Math.PI + 0.8, false);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                const leftX = -65 * Math.cos(0.15);
+                const leftY = -65 - 65 * Math.sin(0.15);
+                const rightX = 65 * Math.cos(0.15);
+                const rightY = -65 - 65 * Math.sin(0.15);
+                ctx.fillStyle = '#ff6b9d';
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                
+                ctx.save();
+                ctx.translate(leftX, leftY);
+                ctx.scale(0.8, 0.8);
+                drawHeartShape(0.8, 0);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(rightX, rightY);
+                ctx.scale(0.8, 0.8);
+                drawHeartShape(0.8, 0);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            } else if (lockState === 'opening' || lockState === 'opened') {
+                ctx.save();
+                ctx.translate(0, -65 + shackleFallY);
+                ctx.rotate(shackleRotation);
+                
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 20;
+                ctx.lineCap = 'round';
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(0, 0, 65, Math.PI + 0.15, -0.15, false);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                const leftX = -65 * Math.cos(0.15);
+                const leftY = -65 * Math.sin(0.15);
+                const rightX = 65 * Math.cos(0.15);
+                const rightY = -65 * Math.sin(0.15);
+                ctx.fillStyle = '#ff6b9d';
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                
+                ctx.save();
+                ctx.translate(leftX, leftY);
+                ctx.scale(0.8, 0.8);
+                drawHeartShape(0.8, 0);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                ctx.save();
+                ctx.translate(rightX, rightY);
+                ctx.scale(0.8, 0.8);
+                drawHeartShape(0.8, 0);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+                
+                ctx.restore();
+            }
+            ctx.restore();
+
+            if (introState !== 'done') {
+                drawIntroTexts();
+            }
+
+            drawHint();
+
+            if (fadeToBlack) {
+                ctx.save();
+                ctx.globalAlpha = fadeToBlackProgress;
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
+        }
+
+        function openLock() {
+            if (lockState === 'closed' && introState === 'done') {
+                lockState = 'opening';
+                animationProgress = 0;
+                shackleFallY = 0;
+                shackleFallVelocity = 2;
+                shackleRotation = 0;
+                
+                createParticles(canvas.width / 2, canvas.height / 2 - 80, 50);
+                
+                let shakeCount = 0;
+                const shakeInterval = setInterval(() => {
+                    lockShakeX = Math.sin(shakeCount) * 8;
+                    shakeCount += 0.5;
+                    if (shakeCount > 12) {
+                        clearInterval(shakeInterval);
+                        lockShakeX = 0;
+                    }
+                }, 16);
+            }
+        }
+
+        function animate() {
+            drawLock();
+            if (lockState === 'opening') {
+                shackleFallY += shackleFallVelocity;
+                shackleFallVelocity += 0.6;
+                shackleRotation += 0.12;
+                if (shackleFallY > canvas.height) {
+                    lockState = 'opened';
+                    createParticles(canvas.width / 2, canvas.height / 2, 80);
+                    if (waitTimer) clearTimeout(waitTimer);
+                    waitTimer = setTimeout(() => {
+                        fadeToBlack = true;
+                    }, 2000);
+                }
+            }
+
+            if (fadeToBlack) {
+                fadeToBlackProgress += fadeToBlackSpeed;
+                keyImage.style.opacity = 1 - fadeToBlackProgress;
+                if (fadeToBlackProgress >= 1) {
+                    localStorage.setItem('musicPlaying', !backgroundMusic.paused);
+                    localStorage.setItem('musicMuted', backgroundMusic.muted);
+                    localStorage.setItem('musicTime', backgroundMusic.currentTime);
+                    galaxiPanel.style.display = 'block';
+                    canvas.style.display = 'none';
+                    keyImage.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                    musicControls.style.bottom = '40px'; // Adjust if needed
+                }
+            }
+
+            if (introState !== 'done' && introState !== 'firstText' || (introState === 'firstText' && fadeProgress < 1)) {
+                fadeProgress += fadeDirection * fadeSpeed;
+                if (fadeDirection === 1 && fadeProgress >= 1) {
+                    fadeProgress = 1;
+                } else if (fadeDirection === -1 && fadeProgress <= 0) {
+                    fadeProgress = 0;
+                    introState = 'done';
+                    lastMovementTime = Date.now(); // Inicializar timer al finalizar intro
+                }
+            }
+
+            // Lógica del hint
+            if (introState === 'done' && !isDragging) {
+                const inactivityTime = Date.now() - lastMovementTime;
+                if (inactivityTime > 3000) {
+                    if (!hintTimer) {
+                        hintTimer = setTimeout(() => {
+                            hintOpacity = Math.min(hintOpacity + 0.02, 1);
+                        }, 50);
+                    } else {
+                        hintOpacity = Math.min(hintOpacity + 0.02, 1);
+                    }
+                } else {
+                    hintOpacity = Math.max(hintOpacity - 0.05, 0);
+                    if (hintTimer) clearTimeout(hintTimer);
+                    hintTimer = null;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            lockCenterX = canvas.width / 2;
+            lockCenterY = canvas.height / 2;
+            
+            const isMobile = canvas.width < 768;
+            const keySize = isMobile ? 40 : 50;
+            keyImage.style.width = `${keySize}px`;
+            keyImage.style.height = `${keySize}px`;
+            
+            keyX = canvas.width / 2 - keySize / 2;
+            keyY = canvas.height / 2 + 200;
+            keyImage.style.left = `${keyX}px`;
+            keyImage.style.top = `${keyY}px`;
+        });
+
+        // Lógica de música
+        playYes.addEventListener('click', () => {
+            backgroundMusic.play();
+            musicPrompt.style.display = 'none';
+            musicControls.style.display = 'block';
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                document.documentElement.msRequestFullscreen();
+            }
+        });
+
+        playNo.addEventListener('click', () => {
+            musicPrompt.style.display = 'none';
+        });
+
+        muteBtn.addEventListener('click', () => {
+            backgroundMusic.muted = !backgroundMusic.muted;
+            muteBtn.textContent = backgroundMusic.muted ? 'Unmute' : 'Mute';
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                pauseBtn.textContent = 'Pausa';
+            } else {
+                backgroundMusic.pause();
+                pauseBtn.textContent = 'Seguir';
+            }
+        });
+
+        // Lógica de pantalla completa
+        exitFullscreenBtn.addEventListener('click', () => {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+        });
+
+        document.addEventListener('fullscreenchange', updateFullscreenBtn);
+        document.addEventListener('mozfullscreenchange', updateFullscreenBtn);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+        document.addEventListener('MSFullscreenChange', updateFullscreenBtn);
+
+        function updateFullscreenBtn() {
+            if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                exitFullscreenBtn.style.display = 'block';
+            } else {
+                exitFullscreenBtn.style.display = 'none';
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>
